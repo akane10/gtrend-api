@@ -49,7 +49,7 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 // }
 // }
 
-#[get("/repositories?<language>&<since>&<spoken_lang>")]
+#[get("/repos?<language>&<since>&<spoken_lang>")]
 pub fn repo_repositories(
     language: Option<&RawStr>,
     since: Option<String>,
