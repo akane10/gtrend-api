@@ -19,7 +19,11 @@ pub fn rocket_app() -> rocket::Rocket {
     rocket::ignite()
         .mount(
             "/",
-            routes![routes::repo::repo_index, routes::repo::repo_repositories],
+            routes![
+                routes::repo::repo_index,
+                routes::repo::repo_repositories,
+                routes::developers::developers
+            ],
         )
         .register(catchers![not_found, internal_error])
 }
