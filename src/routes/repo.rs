@@ -19,7 +19,7 @@ fn to_json(repos: Vec<repos::Repository>) -> Json<Value> {
                 "stars": x.stars,
                 "forks": x.forks,
                 "currentPeriodStars": x.current_star,
-                "builtBy": x.build_by
+                "builtBy": x.built_by
             })
         })
         .collect();

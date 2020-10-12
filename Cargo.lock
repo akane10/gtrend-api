@@ -440,7 +440,7 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 [[package]]
 name = "gtrend"
 version = "0.1.0"
-source = "git+https://gitlab.com/akane10/gtrend#334d6d9ee8985682d4642438cb1ebf24f6876b19"
+source = "git+https://gitlab.com/akane10/gtrend#b3e39132feeb34d71613e6891db30328010206b9"
 dependencies = [
  "reqwest",
  "select",
