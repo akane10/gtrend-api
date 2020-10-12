@@ -4,6 +4,24 @@ use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
 
+fn to_json(repos: Vec<developers::Developer>) -> Json<Value> {
+    let x: Vec<_> = repos
+        .into_iter()
+        .map(|x| {
+            json!({
+                "username": x.username,
+                "name": x.name,
+                "url": x.url,
+                "sponsorUrl": x.sponsor_url,
+                "avatar": x.avatar,
+                "repo": x.repo
+            })
+        })
+        .collect();
+
+    Json(Value::Array(x))
+}
+
 #[get("/developers?<language>&<since>")]
 pub fn developers(
     language: Option<String>,
@@ -21,9 +39,9 @@ pub fn developers(
 
     match data {
         Ok(val) => {
-            let x: Vec<_> = val.clone().into_iter().map(|i| json!(i)).collect();
-
-            Ok(Json(Value::Array(x)))
+            // let x: Vec<_> = val.clone().into_iter().map(|i| json!(i)).collect();
+            // Ok(Json(Value::Array(x)))
+            Ok(to_json(val))
         }
         Err(e) => Err(e),
     }
