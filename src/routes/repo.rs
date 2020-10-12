@@ -73,11 +73,11 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 // }
 // }
 
-#[get("/repositories?<language>&<since>&<spoken_lang>")]
+#[get("/repositories?<language>&<since>&<spoken_language_code>")]
 pub fn repo_repositories(
     language: Option<String>,
     since: Option<String>,
-    spoken_lang: Option<String>,
+    spoken_language_code: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
     let s = since.map(|x| match x.to_lowercase().as_str() {
         "daily" => Since::Daily,
@@ -86,7 +86,7 @@ pub fn repo_repositories(
         _ => Since::Daily,
     });
     let lang: Option<String> = language.map(|x| x.to_lowercase());
-    let s_lang: Option<String> = spoken_lang.map(|x| x.to_lowercase());
+    let s_lang: Option<String> = spoken_language_code.map(|x| x.to_lowercase());
 
     let data = repos::get_data(lang, s.unwrap_or(Since::Daily), s_lang);
 
