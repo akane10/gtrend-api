@@ -26,6 +26,7 @@ fn to_json(repos: Vec<repos::Repository>) -> Json<Value> {
 
     Json(Value::Array(x))
 }
+
 #[get("/")]
 pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
     let data = repos::get_data(None, Since::Daily, None);
@@ -72,7 +73,7 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 // }
 // }
 
-#[get("/repos?<language>&<since>&<spoken_lang>")]
+#[get("/repositories?<language>&<since>&<spoken_lang>")]
 pub fn repo_repositories(
     language: Option<String>,
     since: Option<String>,
