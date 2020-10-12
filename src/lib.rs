@@ -3,10 +3,9 @@
 extern crate rocket;
 
 mod routes;
-// #[macro_use]
-// extern crate rocket_contrib;
-// use rocket::http::Status;
+
 use rocket::request::Request;
+
 #[catch(500)]
 fn internal_error() -> &'static str {
     "Whoops! Looks like we messed up."

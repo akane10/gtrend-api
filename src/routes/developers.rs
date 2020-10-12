@@ -38,11 +38,7 @@ pub fn developers(
     let data = developers::get_data(lang, s.unwrap_or(Since::Daily));
 
     match data {
-        Ok(val) => {
-            // let x: Vec<_> = val.clone().into_iter().map(|i| json!(i)).collect();
-            // Ok(Json(Value::Array(x)))
-            Ok(to_json(val))
-        }
+        Ok(val) => Ok(to_json(val)),
         Err(e) => Err(e),
     }
 }
