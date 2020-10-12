@@ -1,13 +1,12 @@
 use gtrend::gtrend::Since;
-use gtrend::repo;
-use rocket::http::RawStr;
+use gtrend::repos;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
 
 #[get("/")]
 pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
-    let data = repo::get_data(None, Since::Daily, None);
+    let data = repos::get_data(None, Since::Daily, None);
 
     match data {
         Ok(val) => {
@@ -51,20 +50,20 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 
 #[get("/repos?<language>&<since>&<spoken_lang>")]
 pub fn repo_repositories(
-    language: Option<&RawStr>,
+    language: Option<String>,
     since: Option<String>,
-    spoken_lang: Option<&RawStr>,
+    spoken_lang: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.map(|x| match x.as_str() {
+    let s = since.map(|x| match x.to_lowercase().as_str() {
         "daily" => Since::Daily,
         "weekly" => Since::Weekly,
         "monthly" => Since::Monthly,
         _ => Since::Daily,
     });
-    let lang: Option<&str> = language.map(|x| x.as_str());
-    let s_lang: Option<&str> = spoken_lang.map(|x| x.as_str());
+    let lang: Option<String> = language.map(|x| x.to_lowercase());
+    let s_lang: Option<String> = spoken_lang.map(|x| x.to_lowercase());
 
-    let data = repo::get_data(lang, s.unwrap_or(Since::Daily), s_lang);
+    let data = repos::get_data(lang, s.unwrap_or(Since::Daily), s_lang);
 
     match data {
         Ok(val) => {
