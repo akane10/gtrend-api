@@ -9,7 +9,6 @@ edition = "2018"
 [dependencies]
 reqwest = { version = "0.10", features = ["json"] }
 tokio = { version = "0.2", features = ["full"] }
-# xml-rs = "0.8"
 serde_json = { version = "1.0", features = ["preserve_order"] }
 rocket = "0.4" 
 rocket_contrib = "0.4"
