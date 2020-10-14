@@ -1,6 +1,6 @@
 [global]
 address = "localhost"
 port = 8002
-workers = 2
+workers = 50
 log = "normal"
 limits = { forms = 32768 }
