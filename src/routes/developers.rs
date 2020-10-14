@@ -1,5 +1,5 @@
 use gtrend::developers;
-use gtrend::gtrend::Since;
+use gtrend::Since;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
