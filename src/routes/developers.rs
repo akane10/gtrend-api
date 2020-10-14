@@ -27,13 +27,8 @@ pub fn developers(
     language: Option<String>,
     since: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.map(|x| match x.as_str() {
-        "daily" => Since::Daily,
-        "weekly" => Since::Weekly,
-        "monthly" => Since::Monthly,
-        _ => Since::Daily,
-    });
     let lang: Option<String> = language.map(|x| x.to_lowercase());
+    let s = since.map(|x| Since::from_str(&x));
 
     let data = developers::get_data(lang, s.unwrap_or(Since::Daily));
 

@@ -43,12 +43,7 @@ pub fn repo_repositories(
     since: Option<String>,
     spoken_language_code: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.map(|x| match x.to_lowercase().as_str() {
-        "daily" => Since::Daily,
-        "weekly" => Since::Weekly,
-        "monthly" => Since::Monthly,
-        _ => Since::Daily,
-    });
+    let s = since.map(|x| Since::from_str(&x));
     let lang: Option<String> = language.map(|x| x.to_lowercase());
     let s_lang: Option<String> = spoken_language_code.map(|x| x.to_lowercase());
 
