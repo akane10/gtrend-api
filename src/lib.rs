@@ -21,7 +21,9 @@ pub fn rocket_app() -> rocket::Rocket {
             routes![
                 routes::repo::repo_index,
                 routes::repo::repo_repositories,
-                routes::developers::developers
+                routes::developers::developers,
+                routes::languages::languages,
+                routes::spoken_languages::spoken_languages
             ],
         )
         .register(catchers![not_found, internal_error])
