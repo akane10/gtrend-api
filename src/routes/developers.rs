@@ -30,7 +30,15 @@ pub fn developers(
     let lang: Option<String> = language.map(|x| x.to_lowercase());
     let s = since.map(|x| Since::from_str(&x));
 
-    let data = developers::get_data(lang, s.unwrap_or(Since::Daily));
+    let data = match (lang, s) {
+        (Some(l), None) => developers::builder().programming_language(&l).get_data(),
+        (Some(l), Some(s)) => developers::builder()
+            .programming_language(&l)
+            .since(s)
+            .get_data(),
+        (None, Some(s)) => developers::builder().since(s).get_data(),
+        _ => developers::builder().get_data(),
+    };
 
     match data {
         Ok(val) => Ok(to_json(val)),

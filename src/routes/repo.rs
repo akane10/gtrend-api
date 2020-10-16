@@ -29,7 +29,7 @@ fn to_json(repos: Vec<repos::Repository>) -> Json<Value> {
 
 #[get("/")]
 pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
-    let data = repos::get_data(None, Since::Daily, None);
+    let data = repos::builder().get_data();
 
     match data {
         Ok(val) => Ok(to_json(val)),
@@ -47,7 +47,20 @@ pub fn repo_repositories(
     let lang: Option<String> = language.map(|x| x.to_lowercase());
     let s_lang: Option<String> = spoken_language_code.map(|x| x.to_lowercase());
 
-    let data = repos::get_data(lang, s.unwrap_or(Since::Daily), s_lang);
+    let builder = match s {
+        Some(val) => repos::builder().since(val),
+        _ => repos::builder().since(Since::Daily),
+    };
+
+    let data = match (lang, s_lang) {
+        (Some(l), Some(sl)) => builder
+            .programming_language(&l)
+            .spoken_language(&sl)
+            .get_data(),
+        (Some(l), None) => builder.programming_language(&l).get_data(),
+        (None, Some(sl)) => builder.spoken_language(&sl).get_data(),
+        _ => builder.get_data(),
+    };
 
     match data {
         Ok(val) => Ok(to_json(val)),
