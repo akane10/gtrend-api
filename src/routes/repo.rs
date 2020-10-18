@@ -1,6 +1,6 @@
 use gtrend::repos;
 use gtrend::Since;
-use rocket::http::RawStr;
+// use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
@@ -40,9 +40,9 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 
 #[get("/repositories?<language>&<since>&<spoken_language_code>")]
 pub fn repo_repositories(
-    language: Option<&RawStr>,
+    language: Option<String>,
     since: Option<String>,
-    spoken_language_code: Option<&RawStr>,
+    spoken_language_code: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
     let s = since.map(|x| Since::from_str(&x));
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
