@@ -1,5 +1,6 @@
 use gtrend::developers;
 use gtrend::Since;
+use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
@@ -24,11 +25,14 @@ fn to_json(repos: Vec<developers::Developer>) -> Json<Value> {
 
 #[get("/developers?<language>&<since>")]
 pub fn developers(
-    language: Option<String>,
+    language: Option<&RawStr>,
     since: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let lang: Option<String> = language.map(|x| x.to_lowercase());
     let s = since.map(|x| Since::from_str(&x));
+    let lang: Option<String> = language.and_then(|x| match x.as_str() {
+        "" => None,
+        _ => Some(x.to_lowercase()),
+    });
 
     let data = match (lang, s) {
         (Some(l), None) => developers::builder().programming_language(&l).get_data(),
