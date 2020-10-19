@@ -27,16 +27,10 @@ pub fn read_json(path: &str) -> Result<Value, Box<dyn Error>> {
         let sys_time = SystemTime::now();
         let difference = sys_time.duration_since(time).unwrap();
 
-        // println!("{:?}", difference);
-        // println!("{:?}", time);
-
         if difference > Duration::new(3600, 0) {
             fs::remove_file(path)?;
         }
     }
-    // else {
-    // println!("Not supported on this platform or filesystem");
-    // };
 
     let mut file = File::open(path)?;
     let mut data = String::new();
