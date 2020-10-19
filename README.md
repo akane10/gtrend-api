@@ -1,5 +1,5 @@
 # gtrend api
-inspired by [github-trending-api](https://github.com/huchenme/github-trending-api). For lib [gtrend](https://gitlab.com/akane10/gtrend)
+inspired by [github-trending-api](https://github.com/huchenme/github-trending-api). For lib see [gtrend](https://gitlab.com/akane10/gtrend)
 
 ## endpoints
  - https://gtrending.yapie.me/
