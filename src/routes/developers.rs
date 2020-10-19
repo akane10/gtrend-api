@@ -1,5 +1,5 @@
-use gtrend::developers;
-use gtrend::Since;
+use crate::helpers::{read_json, write_json};
+use gtrend::{developers, Since};
 // use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
@@ -33,19 +33,40 @@ pub fn developers(
         "" => None,
         _ => Some(x.to_lowercase()),
     });
+    // println!("{:?}", lang);
+    let filename = format!(
+        ".cache/developers_{}_{}.json",
+        lang.clone().unwrap_or("".to_string()),
+        s.clone().map(|x| x.to_string()).unwrap_or("".to_string()),
+    );
 
-    let data = match (lang, s) {
-        (Some(l), None) => developers::builder().programming_language(&l).get_data(),
-        (Some(l), Some(s)) => developers::builder()
-            .programming_language(&l)
-            .since(s)
-            .get_data(),
-        (None, Some(s)) => developers::builder().since(s).get_data(),
-        _ => developers::builder().get_data(),
-    };
+    let data_json = read_json(&filename);
 
-    match data {
-        Ok(val) => Ok(to_json(val)),
-        Err(e) => Err(e),
+    match data_json {
+        Ok(data) => Ok(Json(data)),
+        _ => {
+            let data = match (lang, s) {
+                (Some(l), None) => developers::builder().programming_language(&l).get_data(),
+                (Some(l), Some(s)) => developers::builder()
+                    .programming_language(&l)
+                    .since(s)
+                    .get_data(),
+                (None, Some(s)) => developers::builder().since(s).get_data(),
+                _ => developers::builder().get_data(),
+            };
+
+            match data {
+                Ok(val) => {
+                    let j = to_json(val.clone());
+                    let x = json!(val);
+
+                    let w = write_json(&filename, &x);
+                    match w {
+                        _ => Ok(j),
+                    }
+                }
+                Err(e) => Err(e),
+            }
+        }
     }
 }

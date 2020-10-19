@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate rocket;
 
+mod helpers;
 mod routes;
 
 use rocket::request::Request;
