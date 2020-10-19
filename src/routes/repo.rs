@@ -1,9 +1,26 @@
 use gtrend::repos;
 use gtrend::Since;
-// use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
+use std::fs::File;
+use std::io::Read;
+
+fn write_json(path: &str, data: &Value) -> Result<(), Box<dyn Error>> {
+    // https://programming-idioms.org/idiom/92/save-object-into-json-file/2347/rust
+    let val = &File::create(path)?;
+    serde_json::to_writer(val, &data)?;
+    Ok(())
+}
+
+fn read_json(path: &str) -> Result<Value, Box<dyn Error>> {
+    let mut file = File::open(path)?;
+    let mut data = String::new();
+    file.read_to_string(&mut data)?;
+    let data_json: Value = serde_json::from_str(&data)?;
+
+    Ok(data_json)
+}
 
 fn to_json(repos: Vec<repos::Repository>) -> Json<Value> {
     let x: Vec<_> = repos
@@ -30,11 +47,23 @@ fn to_json(repos: Vec<repos::Repository>) -> Json<Value> {
 
 #[get("/")]
 pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
-    let data = repos::builder().get_data();
+    let data_json = read_json(".cache/repo_index.json");
 
-    match data {
-        Ok(val) => Ok(to_json(val)),
-        Err(e) => Err(e),
+    match data_json {
+        Ok(data) => Ok(Json(data)),
+        _ => {
+            let data = repos::builder().get_data();
+
+            match data {
+                Ok(val) => {
+                    let w = write_json(".cache/repo_index.json", &to_json(val.clone()));
+                    match w {
+                        _ => Ok(to_json(val)),
+                    }
+                }
+                Err(e) => Err(e),
+            }
+        }
     }
 }
 
@@ -44,7 +73,7 @@ pub fn repo_repositories(
     since: Option<String>,
     spoken_language_code: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.map(|x| Since::from_str(&x));
+    let s = since.clone().map(|x| Since::from_str(&x));
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
         "" => None,
         _ => Some(x.to_lowercase()),
@@ -55,24 +84,45 @@ pub fn repo_repositories(
     });
 
     // println!("{:?}", lang);
+    let filename = format!(
+        ".cache/{}_{}_{}.json",
+        lang.clone().unwrap_or("".to_string()),
+        s.clone().map(|x| x.to_string()).unwrap_or("".to_string()),
+        s_lang.clone().unwrap_or("".to_string())
+    );
 
-    let builder = match s {
-        Some(val) => repos::builder().since(val),
-        _ => repos::builder().since(Since::Daily),
-    };
+    let data_json = read_json(&filename);
 
-    let data = match (lang, s_lang) {
-        (Some(l), Some(sl)) => builder
-            .programming_language(&l)
-            .spoken_language(&sl)
-            .get_data(),
-        (Some(l), None) => builder.programming_language(&l).get_data(),
-        (None, Some(sl)) => builder.spoken_language(&sl).get_data(),
-        _ => builder.get_data(),
-    };
+    match data_json {
+        Ok(data) => Ok(Json(data)),
+        _ => {
+            let builder = match s {
+                Some(val) => repos::builder().since(val),
+                _ => repos::builder().since(Since::Daily),
+            };
 
-    match data {
-        Ok(val) => Ok(to_json(val)),
-        Err(e) => Err(e),
+            let data = match (lang, s_lang) {
+                (Some(l), Some(sl)) => builder
+                    .programming_language(&l)
+                    .spoken_language(&sl)
+                    .get_data(),
+                (Some(l), None) => builder.programming_language(&l).get_data(),
+                (None, Some(sl)) => builder.spoken_language(&sl).get_data(),
+                _ => builder.get_data(),
+            };
+
+            match data {
+                Ok(val) => {
+                    let j = to_json(val.clone());
+                    let x = json!(val);
+
+                    let w = write_json(&filename, &x);
+                    match w {
+                        _ => Ok(j),
+                    }
+                }
+                Err(e) => Err(e),
+            }
+        }
     }
 }
