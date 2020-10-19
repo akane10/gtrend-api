@@ -29,8 +29,8 @@ fn read_json(path: &str) -> Result<Value, Box<dyn Error>> {
         let sys_time = SystemTime::now();
         let difference = sys_time.duration_since(time).unwrap();
 
-        println!("{:?}", difference);
-        println!("{:?}", time);
+        // println!("{:?}", difference);
+        // println!("{:?}", time);
 
         if difference > Duration::new(3600, 0) {
             fs::remove_file(path)?;
