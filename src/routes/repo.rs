@@ -24,7 +24,6 @@ fn to_json(repos: Vec<repos::Repository>) -> Value {
         })
         .collect();
 
-    // Json(Value::Array(x))
     Value::Array(x)
 }
 
