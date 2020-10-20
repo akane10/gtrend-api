@@ -1,11 +1,10 @@
 use crate::helpers::{read_json, write_json};
 use gtrend::{developers, Since};
-// use rocket::http::RawStr;
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
 
-fn to_json(repos: Vec<developers::Developer>) -> Json<Value> {
+fn to_json(repos: Vec<developers::Developer>) -> Value {
     let x: Vec<_> = repos
         .into_iter()
         .map(|x| {
@@ -20,7 +19,7 @@ fn to_json(repos: Vec<developers::Developer>) -> Json<Value> {
         })
         .collect();
 
-    Json(Value::Array(x))
+    Value::Array(x)
 }
 
 #[get("/developers?<language>&<since>")]
@@ -58,11 +57,10 @@ pub fn developers(
             match data {
                 Ok(val) => {
                     let j = to_json(val.clone());
-                    let x = json!(val);
 
-                    let w = write_json(&filename, &x);
+                    let w = write_json(&filename, &j);
                     match w {
-                        _ => Ok(j),
+                        _ => Ok(Json(j)),
                     }
                 }
                 Err(e) => Err(e),
