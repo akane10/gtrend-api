@@ -17,15 +17,16 @@ fn not_found(req: &Request) -> String {
 }
 pub fn rocket_app() -> rocket::Rocket {
     rocket::ignite()
+        .mount("/", routes![routes::repo::repo_index,])
         .mount(
-            "/",
-            routes![
-                routes::repo::repo_index,
-                routes::repo::repo_repositories,
-                routes::developers::developers,
-                routes::languages::languages,
-                routes::spoken_languages::spoken_languages
-            ],
+            "/repositories",
+            routes![routes::repo::repo_index, routes::repo::repo_repositories,],
+        )
+        .mount("/developers", routes![routes::developers::developers])
+        .mount("/languages", routes![routes::languages::languages])
+        .mount(
+            "/spoken_languages",
+            routes![routes::spoken_languages::spoken_languages],
         )
         .register(catchers![not_found, internal_error])
 }

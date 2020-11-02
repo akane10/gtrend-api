@@ -52,7 +52,7 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
     }
 }
 
-#[get("/repositories?<language>&<since>&<spoken_language_code>")]
+#[get("/?<language>&<since>&<spoken_language_code>")]
 pub fn repo_repositories(
     language: Option<String>,
     since: Option<String>,

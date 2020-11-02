@@ -22,7 +22,7 @@ fn to_json(repos: &Vec<developers::Developer>) -> Value {
     Value::Array(x)
 }
 
-#[get("/developers?<language>&<since>")]
+#[get("/?<language>&<since>")]
 pub fn developers(
     language: Option<String>,
     since: Option<String>,
