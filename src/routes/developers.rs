@@ -4,9 +4,9 @@ use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
 
-fn to_json(repos: Vec<developers::Developer>) -> Value {
+fn to_json(repos: &Vec<developers::Developer>) -> Value {
     let x: Vec<_> = repos
-        .into_iter()
+        .iter()
         .map(|x| {
             json!({
                 "username": x.username,
@@ -56,7 +56,7 @@ pub fn developers(
 
             match data {
                 Ok(val) => {
-                    let j = to_json(val.clone());
+                    let j = to_json(&val);
 
                     let w = write_json(&filename, &j);
                     match w {
