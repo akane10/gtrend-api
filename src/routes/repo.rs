@@ -4,7 +4,7 @@ use rocket_contrib::json::Json;
 use serde_json::{json, Value};
 use std::error::Error;
 
-fn to_json(repos: Vec<repos::Repository>) -> Value {
+fn to_json(repos: &Vec<repos::Repository>) -> Value {
     let x: Vec<_> = repos
         .into_iter()
         .map(|x| {
@@ -38,10 +38,10 @@ pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
 
             match data {
                 Ok(val) => {
-                    let w = write_json(".cache/repo_index.json", &to_json(val.clone()));
+                    let w = write_json(".cache/repo_index.json", &to_json(&val));
                     match w {
                         _ => {
-                            let x = Json(to_json(val));
+                            let x = Json(to_json(&val));
                             Ok(x)
                         }
                     }
@@ -98,7 +98,7 @@ pub fn repo_repositories(
 
             match data {
                 Ok(val) => {
-                    let j = to_json(val.clone());
+                    let j = to_json(&val);
 
                     let w = write_json(&filename, &j);
                     match w {
