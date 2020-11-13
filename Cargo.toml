@@ -12,5 +12,5 @@ tokio = { version = "0.2", features = ["full"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 rocket = "0.4" 
 rocket_contrib = "0.4"
-gtrend = { git = "https://gitlab.com/akane10/gtrend", branch = "master" }
+gtrend = { git = "https://gitlab.com/akane10/gtrend", branch = "dev" }
 

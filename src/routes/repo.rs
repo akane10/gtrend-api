@@ -28,37 +28,38 @@ fn to_json(repos: &Vec<repos::Repository>) -> Value {
 }
 
 #[get("/")]
-pub fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
+#[tokio::main]
+pub async fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
     let data_json = read_json(".cache/repo_index.json");
 
     match data_json {
         Ok(data) => Ok(Json(data)),
         _ => {
-            let data = repos::builder().get_data();
+            let data = repos::builder().get_data().await?;
 
-            match data {
-                Ok(val) => {
-                    let w = write_json(".cache/repo_index.json", &to_json(&val));
-                    match w {
-                        _ => {
-                            let x = Json(to_json(&val));
-                            Ok(x)
-                        }
-                    }
+            // match data {
+            // Ok(val) => {
+            let w = write_json(".cache/repo_index.json", &to_json(&data));
+            match w {
+                _ => {
+                    let x = Json(to_json(&data));
+                    Ok(x)
                 }
-                Err(e) => Err(e),
             }
-        }
+        } // Err(e) => Err(e),
+          // }
+          // }
     }
 }
 
+#[tokio::main]
 #[get("/?<language>&<since>&<spoken_language_code>")]
-pub fn repo_repositories(
+pub async fn repo_repositories(
     language: Option<String>,
     since: Option<String>,
     spoken_language_code: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.clone().map(|x| Since::from_str(&x));
+    let s = since.clone().and_then(|x| Since::from_str(&x));
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
         "" => None,
         _ => Some(x.to_lowercase()),
@@ -87,16 +88,13 @@ pub fn repo_repositories(
             };
 
             let data = match (lang, s_lang) {
-                (Some(l), Some(sl)) => builder
-                    .programming_language(&l)
-                    .spoken_language(&sl)
-                    .get_data(),
-                (Some(l), None) => builder.programming_language(&l).get_data(),
-                (None, Some(sl)) => builder.spoken_language(&sl).get_data(),
-                _ => builder.get_data(),
+                (Some(l), Some(sl)) => builder.programming_language(&l).spoken_language(&sl),
+                (Some(l), None) => builder.programming_language(&l),
+                (None, Some(sl)) => builder.spoken_language(&sl),
+                _ => builder,
             };
 
-            match data {
+            match data.get_data().await {
                 Ok(val) => {
                     let j = to_json(&val);
 

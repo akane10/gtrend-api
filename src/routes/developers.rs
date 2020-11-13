@@ -23,11 +23,12 @@ fn to_json(repos: &Vec<developers::Developer>) -> Value {
 }
 
 #[get("/?<language>&<since>")]
-pub fn developers(
+#[tokio::main]
+pub async fn developers(
     language: Option<String>,
     since: Option<String>,
 ) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.map(|x| Since::from_str(&x));
+    let s = since.and_then(|x| Since::from_str(&x));
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
         "" => None,
         _ => Some(x.to_lowercase()),
@@ -45,13 +46,21 @@ pub fn developers(
         Ok(data) => Ok(Json(data)),
         _ => {
             let data = match (lang, s) {
-                (Some(l), None) => developers::builder().programming_language(&l).get_data(),
-                (Some(l), Some(s)) => developers::builder()
-                    .programming_language(&l)
-                    .since(s)
-                    .get_data(),
-                (None, Some(s)) => developers::builder().since(s).get_data(),
-                _ => developers::builder().get_data(),
+                (Some(l), None) => {
+                    developers::builder()
+                        .programming_language(&l)
+                        .get_data()
+                        .await
+                }
+                (Some(l), Some(s)) => {
+                    developers::builder()
+                        .programming_language(&l)
+                        .since(s)
+                        .get_data()
+                        .await
+                }
+                (None, Some(s)) => developers::builder().since(s).get_data().await,
+                _ => developers::builder().get_data().await,
             };
 
             match data {
