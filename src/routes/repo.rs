@@ -37,8 +37,6 @@ pub async fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
         _ => {
             let data = repos::builder().get_data().await?;
 
-            // match data {
-            // Ok(val) => {
             let w = write_json(".cache/repo_index.json", &to_json(&data));
             match w {
                 _ => {
@@ -46,9 +44,7 @@ pub async fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
                     Ok(x)
                 }
             }
-        } // Err(e) => Err(e),
-          // }
-          // }
+        }
     }
 }
 
