@@ -1,8 +1,8 @@
+use crate::error::Error;
 use crate::helpers::{read_json, write_json};
 use gtrend::{developers, Since};
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
-use std::error::Error;
 
 fn to_json(repos: &Vec<developers::Developer>) -> Value {
     let x: Vec<_> = repos
@@ -27,8 +27,8 @@ fn to_json(repos: &Vec<developers::Developer>) -> Value {
 pub async fn developers(
     language: Option<String>,
     since: Option<String>,
-) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.and_then(|x| Since::from_str(&x));
+) -> Result<Json<Value>, Error> {
+    let s = since.and_then(Since::from_str);
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
         "" => None,
         _ => Some(x.to_lowercase()),
@@ -48,31 +48,25 @@ pub async fn developers(
             let data = match (lang, s) {
                 (Some(l), None) => {
                     developers::builder()
-                        .programming_language(&l)
+                        .programming_language(l)
                         .get_data()
-                        .await
+                        .await?
                 }
                 (Some(l), Some(s)) => {
                     developers::builder()
-                        .programming_language(&l)
+                        .programming_language(l)
                         .since(s)
                         .get_data()
-                        .await
+                        .await?
                 }
-                (None, Some(s)) => developers::builder().since(s).get_data().await,
-                _ => developers::builder().get_data().await,
+                (None, Some(s)) => developers::builder().since(s).get_data().await?,
+                _ => developers::builder().get_data().await?,
             };
 
-            match data {
-                Ok(val) => {
-                    let j = to_json(&val);
-
-                    let w = write_json(&filename, &j);
-                    match w {
-                        _ => Ok(Json(j)),
-                    }
-                }
-                Err(e) => Err(e),
+            let j = to_json(&data);
+            let w = write_json(&filename, &j);
+            match w {
+                _ => Ok(Json(j)),
             }
         }
     }

@@ -1,13 +1,14 @@
 // use rocket_contrib::json::Json;
 use serde_json::Value;
-use std::error::Error;
+// use std::error::Error;
+use crate::error::Error;
 use std::fs;
 use std::fs::{metadata, File};
 use std::io::Read;
 use std::time::Duration;
 use std::time::SystemTime;
 
-pub fn write_json(path: &str, data: &Value) -> Result<(), Box<dyn Error>> {
+pub fn write_json(path: &str, data: &Value) -> Result<(), Error> {
     // https://programming-idioms.org/idiom/92/save-object-into-json-file/2347/rust
     let is_exist = fs::metadata(".cache").is_ok();
 
@@ -20,7 +21,7 @@ pub fn write_json(path: &str, data: &Value) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn read_json(path: &str) -> Result<Value, Box<dyn Error>> {
+pub fn read_json(path: &str) -> Result<Value, Error> {
     let meta = metadata(path)?;
 
     if let Ok(time) = meta.created() {

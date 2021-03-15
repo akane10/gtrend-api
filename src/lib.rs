@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate rocket;
 
+pub mod error;
 mod helpers;
 mod routes;
 

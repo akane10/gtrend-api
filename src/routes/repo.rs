@@ -1,8 +1,8 @@
+use crate::error::Error;
 use crate::helpers::{read_json, write_json};
 use gtrend::{repos, Since};
 use rocket_contrib::json::Json;
 use serde_json::{json, Value};
-use std::error::Error;
 
 fn to_json(repos: &Vec<repos::Repository>) -> Value {
     let x: Vec<_> = repos
@@ -29,7 +29,7 @@ fn to_json(repos: &Vec<repos::Repository>) -> Value {
 
 #[get("/")]
 #[tokio::main]
-pub async fn repo_index() -> Result<Json<Value>, Box<dyn Error>> {
+pub async fn repo_index() -> Result<Json<Value>, Error> {
     let data_json = read_json(".cache/repo_index.json");
 
     match data_json {
@@ -54,8 +54,8 @@ pub async fn repo_repositories(
     language: Option<String>,
     since: Option<String>,
     spoken_language_code: Option<String>,
-) -> Result<Json<Value>, Box<dyn Error>> {
-    let s = since.clone().and_then(|x| Since::from_str(&x));
+) -> Result<Json<Value>, Error> {
+    let s = since.clone().and_then(|x| Since::from_str(x));
     let lang: Option<String> = language.and_then(|x| match x.as_str() {
         "" => None,
         _ => Some(x.to_lowercase()),
@@ -84,22 +84,17 @@ pub async fn repo_repositories(
             };
 
             let data = match (lang, s_lang) {
-                (Some(l), Some(sl)) => builder.programming_language(&l).spoken_language(&sl),
-                (Some(l), None) => builder.programming_language(&l),
-                (None, Some(sl)) => builder.spoken_language(&sl),
+                (Some(l), Some(sl)) => builder.programming_language(l).spoken_language(sl),
+                (Some(l), None) => builder.programming_language(l),
+                (None, Some(sl)) => builder.spoken_language(sl),
                 _ => builder,
             };
 
-            match data.get_data().await {
-                Ok(val) => {
-                    let j = to_json(&val);
-
-                    let w = write_json(&filename, &j);
-                    match w {
-                        _ => Ok(Json(j)),
-                    }
-                }
-                Err(e) => Err(e),
+            let val = data.get_data().await?;
+            let j = to_json(&val);
+            let w = write_json(&filename, &j);
+            match w {
+                _ => Ok(Json(j)),
             }
         }
     }
