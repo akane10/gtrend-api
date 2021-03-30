@@ -8,9 +8,9 @@ edition = "2018"
 
 [dependencies]
 reqwest = { version = "0.11.2", features = ["json"] }
-tokio = { version = "1.4.0", features = ["full"] }
 serde_json = { version = "1.0.64", features = ["preserve_order"] }
 rocket = "0.4.7"
 rocket_contrib = "0.4.7"
 gtrend = { git = "https://gitlab.com/akane10/gtrend", branch = "master" }
+tokio = "1.4.0"
 
